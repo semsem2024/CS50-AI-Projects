@@ -1,0 +1,52 @@
+code :
+
+def get_mask_token_index(mask_token_id, inputs):
+    """
+    Given the mask token ID and the tokenizer-generated inputs,
+    return the index of the mask token in the input sequence.
+    If no mask is found, return None.
+    """
+    input_ids = inputs["input_ids"][0]  # shape: (sequence_length,)
+    for i, token_id in enumerate(input_ids):
+        if token_id == mask_token_id:
+            return i
+    return None
+
+
+def get_color_for_attention_score(score):
+    """
+    Map an attention score (0–1) to a grayscale RGB color.
+    0 -> black (0,0,0), 1 -> white (255,255,255).
+    """
+    # scale score to 0–255
+    value = int(round(score * 255))
+    return (value, value, value)
+
+
+def visualize_attentions(tokens, attentions):
+    """
+    For each layer and head, generate an attention diagram.
+    - tokens: list of strings
+    - attentions: tuple of tensors (layers × batch × heads × seq × seq)
+    """
+    # number of layers
+    num_layers = len(attentions)
+
+    for layer_index in range(num_layers):
+        # attentions[layer_index] has shape (batch=1, heads, seq, seq)
+        layer_attn = attentions[layer_index][0]  # (heads, seq, seq)
+        num_heads = layer_attn.shape[0]
+
+        for head_index in range(num_heads):
+            head_attn = layer_attn[head_index]  # (seq, seq)
+
+            # convert tensor to numpy array (if necessary)
+            scores = head_attn.detach().numpy()
+
+            # generate diagram
+            generate_diagram(
+                layer_number=layer_index + 1,   # 1-indexed
+                head_number=head_index + 1,     # 1-indexed
+                tokens=tokens,
+                attention=scores
+            )

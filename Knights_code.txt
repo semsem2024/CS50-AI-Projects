@@ -1,0 +1,127 @@
+Knights :
+
+
+from logic import *
+
+# Symbols for A, B, C
+AKnight = Symbol("A is a Knight")
+AKnave = Symbol("A is a Knave")
+
+BKnight = Symbol("B is a Knight")
+BKnave = Symbol("B is a Knave")
+
+CKnight = Symbol("C is a Knight")
+CKnave = Symbol("C is a Knave")
+
+# Puzzle 0
+# A says: "I am both a knight and a knave."
+# If A were a knight, then that statement would have to be true,
+# but it can't be true. So this forces A to be a knave.
+knowledge0 = And(
+    Or(AKnight, AKnave),
+    Not(And(AKnight, AKnave)),
+
+    Implication(AKnight, And(AKnight, AKnave)),
+    Implication(AKnave, Not(And(AKnight, AKnave)))
+)
+
+# Puzzle 1
+# A says: "We are both knaves."
+# If A is a knight, then both must be knaves (contradiction).
+# If A is a knave, then the statement is false (so at least one isn't a knave).
+knowledge1 = And(
+    Or(AKnight, AKnave),
+    Not(And(AKnight, AKnave)),
+    Or(BKnight, BKnave),
+    Not(And(BKnight, BKnave)),
+
+    Implication(AKnight, And(AKnave, BKnave)),
+    Implication(AKnave, Not(And(AKnave, BKnave)))
+)
+
+# Puzzle 2
+# A says: "We are the same kind."
+# B says: "We are of different kinds."
+knowledge2 = And(
+    Or(AKnight, AKnave),
+    Not(And(AKnight, AKnave)),
+    Or(BKnight, BKnave),
+    Not(And(BKnight, BKnave)),
+
+    # A’s statement
+    Implication(AKnight, Or(And(AKnight, BKnight), And(AKnave, BKnave))),
+    Implication(AKnave, Not(Or(And(AKnight, BKnight), And(AKnave, BKnave)))),
+
+    # B’s statement
+    Implication(BKnight, Or(And(AKnight, BKnave), And(AKnave, BKnight))),
+    Implication(BKnave, Not(Or(And(AKnight, BKnave), And(AKnave, BKnight))))
+)
+
+# Puzzle 3
+# A says either "I am a knight" OR "I am a knave" (we don’t know which).
+# B says: "A said 'I am a knave'." and "C is a knave."
+# C says: "A is a knight."
+#
+# The tricky part is B’s first claim, because A’s actual statement is unknown.
+knowledge3 = And(
+    Or(AKnight, AKnave),
+    Not(And(AKnight, AKnave)),
+    Or(BKnight, BKnave),
+    Not(And(BKnight, BKnave)),
+    Or(CKnight, CKnave),
+    Not(And(CKnight, CKnave)),
+
+    # Let’s model B’s second statement first (simpler): "C is a knave."
+    Implication(BKnight, CKnave),
+    Implication(BKnave, Not(CKnave)),
+
+    # C’s statement: "A is a knight."
+    Implication(CKnight, AKnight),
+    Implication(CKnave, Not(AKnight)),
+
+    # Now the ambiguous A + B part.
+    # If B is a knight, then A really did say "I am a knave."
+    Implication(BKnight,
+        And(
+            Implication(AKnight, AKnave),
+            Implication(AKnave, Not(AKnave))
+        )
+    ),
+    # If B is lying, then A did NOT say "I am a knave."
+    Implication(BKnave,
+        Not(
+            And(
+                Implication(AKnight, AKnave),
+                Implication(AKnave, Not(AKnave))
+            )
+        )
+    )
+)
+
+
+def main():
+    puzzles = [
+        ("Puzzle 0", knowledge0),
+        ("Puzzle 1", knowledge1),
+        ("Puzzle 2", knowledge2),
+        ("Puzzle 3", knowledge3),
+    ]
+
+    characters = [
+        ("A is a Knight", AKnight),
+        ("A is a Knave", AKnave),
+        ("B is a Knight", BKnight),
+        ("B is a Knave", BKnave),
+        ("C is a Knight", CKnight),
+        ("C is a Knave", CKnave),
+    ]
+
+    for name, knowledge in puzzles:
+        print(name)
+        for symbol_name, symbol in characters:
+            if model_check(knowledge, symbol):
+                print(f"   {symbol_name}")
+
+
+if __name__ == "__main__":
+    main()

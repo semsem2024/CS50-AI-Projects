@@ -1,0 +1,26 @@
+Ce code résout le problème d'entraînement de l'IA pour jouer au jeu de "Nim" et utilise le Q-learning, un type d'apprentissage par renforcement, et il est entraîné par un algorithme d'essai-erreur.
+
+import random
+
+
+class NimAI:
+    def __init__(self, alpha=0.5, epsilon=0.1):
+        # Q-values {(state, action): value}
+        self.q = dict()
+        self.alpha = alpha
+        self.epsilon = epsilon
+
+    def get_q_value(self, state, action):
+        """
+        Return Q-value for (state, action), default 0 if not yet stored.
+        """
+        key = (tuple(state), action)
+        return self.q.get(key, 0)
+
+    def update_q_value(self, state, action, old_q, reward, future_rewards):
+        """
+        Update Q-value for (state, action) using Q-learning formula.
+        """
+        key = (tuple(state), action)
+        new_value_est = reward + future_rewards
+        self.q[key] = old_q + self.alpha * (new_value_est - old_q)

@@ -1,0 +1,24 @@
+presentation : 
+Le code visualise les scores d'attention à l'intérieur d'un modèle de transformateur et crée un diagramme pour chaque couche et chaque tête et montre les différents mots dans la phrase.
+
+def get_mask_token_index(mask_token_id, inputs):
+    """
+    Given the mask token ID and the tokenizer-generated inputs,
+    return the index of the mask token in the input sequence.
+    If no mask is found, return None.
+    """
+    input_ids = inputs["input_ids"][0]  # shape: (sequence_length,)
+    for i, token_id in enumerate(input_ids):
+        if token_id == mask_token_id:
+            return i
+    return None
+
+
+def get_color_for_attention_score(score):
+    """
+    Map an attention score (0–1) to a grayscale RGB color.
+    0 -> black (0,0,0), 1 -> white (255,255,255).
+    """
+    # scale score to 0–255
+    value = int(round(score * 255))
+    return (value, value, value)

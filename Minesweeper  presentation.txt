@@ -1,0 +1,26 @@
+ce code résoudre le problème de jeux de " Minesweeper" par les algorithmes de "knowledge base and logical inference " pour assurer la choisie des cellule  sécurisé :
+
+
+import itertools
+import random
+
+
+class Minesweeper():
+    """
+    Minesweeper game representation
+    """
+
+    def __init__(self, height=8, width=8, mines=8):
+
+        # Set initial width, height, and number of mines
+        self.height = height
+        self.width = width
+        self.mines = set()
+
+        # Initialize an empty field with no mines
+        self.board = []
+        for i in range(self.height):
+            row = []
+            for j in range(self.width):
+                row.append(False)
+            self.board.append(row)

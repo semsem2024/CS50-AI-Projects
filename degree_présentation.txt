@@ -1,0 +1,32 @@
+ce code trouve les factors communs entre deux variables en utilisant le DFS pour trouver le chemin minimal 
+un extrait du code :
+
+
+from util import QueueFrontier
+
+def shortest_path(source, target):
+    """
+    Returns the shortest list of (movie_id, person_id) pairs
+    that connect the source to the target.
+
+    If no connection, return None.
+    """
+
+    # frontier for BFS
+    frontier = QueueFrontier()
+    frontier.add(Node(state=source, parent=None, action=None))
+
+    # explored set
+    explored = set()
+
+    while not frontier.empty():
+        node = frontier.remove()
+
+        # if this node is the target, reconstruct the path
+        if node.state == target:
+            path = []
+            while node.parent is not None:
+                path.append((node.action, node.state))
+                node = node.parent
+            path.reverse()
+            return path
